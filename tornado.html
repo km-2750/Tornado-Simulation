@@ -4,11 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>Tornado Visualization</title>
+    <link rel = "stylesheet" href = "tornado.css">
     <script src="https://d3js.org/d3.v5.min.js"></script>
 </head>
 <body>
-    <h1>This is a test</h1>
-    <script src="simple.js"></script>
+    <h1 id="main-head">Tornado Visualization</h1>
+    <button id="play-button">Play</button>
+    <button id="pause-button">Pause</button>
+    <div class="slidecontainer">
+        <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+    </div>
+    <p id="time-display">This is what will change</p>
+    <script src="tornado.js"></script>
 </body>
 </html>
