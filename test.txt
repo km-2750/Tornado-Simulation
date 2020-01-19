@@ -1,0 +1,5 @@
+.select("body")
+    .select("div#slider")
+    .append("input")
+    .attr("type", "range")
+    .attr("id", "time-slider")
