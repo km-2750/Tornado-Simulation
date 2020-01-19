@@ -6,22 +6,20 @@ function slideTime() {
         .text(`The time is ${time}`)
 }
 
-var sliderSimple = d3.select("body")
-    .select("div#slider")
-    .append("input")
-    .attr("type", "range")
-    .attr("id", "time-slider")
+var sliderSimple = d3
     .sliderBottom()
     .min(d3.min(data))
     .max(d3.max(data))
     .width(300)
-    .tickFormat(d3.format('.2%'))
+    .tickFormat(d3.format('.3'))
     .ticks(5)
-    .default(0.015)
-    .on('onchange', slideTime(value));
+    .default(0)
+    .on('onchange', val => {
+        d3.select('p#time-display').text(d3.format('.3')(val));
+      });
 
 var gSimple = d3
-    .select('div#time-slider')
+    .select('div#slider')
     .append('svg')
     .attr('width', 500)
     .attr('height', 100)
@@ -30,4 +28,4 @@ var gSimple = d3
 
 gSimple.call(sliderSimple);
 
-d3.select('p#time-value').text(d3.format('.2%')(sliderSimple.value()));
+d3.select('p#time-display').text(d3.format('.3')(sliderSimple.value()));
