@@ -4,6 +4,10 @@ let data = [0,1,2,3];
 /*updates in my file
 1) reading in the data 
 2) creating a draw function to base the html on the data set
+
+Notes: update html to include paragraph index
+Update csv to name columns
+
 */
 d3.csv('tornadoPressureData1.CSV').then(function(d) {
     draw(d)
