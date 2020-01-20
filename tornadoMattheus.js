@@ -1,5 +1,6 @@
 let margin = 5
 let scale = 4
+let fill = 'white'
 
 //Constants DO NOT CHANGE
 const leftRightX = 40 * scale
@@ -22,7 +23,7 @@ d3.select('div.content')
     .attr('y', margin)
     .attr('width', bottomTopX)
     .attr('height', bottomTopY)
-    .attr('fill', 'transparent')
+    .attr('fill', fill)
     .attr('stroke', 'black')
 d3.select('svg#pressure-display')
     .append('rect')
@@ -31,7 +32,7 @@ d3.select('svg#pressure-display')
     .attr('y', margin + bottomTopY)
     .attr('width', centerX)
     .attr('height', centerY)
-    .attr('fill', 'transparent')
+    .attr('fill', fill)
     .attr('stroke', 'black')
 d3.select('svg#pressure-display')
     .append('rect')
@@ -40,7 +41,7 @@ d3.select('svg#pressure-display')
     .attr('y', margin + bottomTopY + centerY)
     .attr('width', bottomTopX)
     .attr('height', bottomTopY)
-    .attr('fill', 'transparent')
+    .attr('fill', fill)
     .attr('stroke', 'black')
 d3.select('svg#pressure-display')
     .append('rect')
@@ -49,7 +50,7 @@ d3.select('svg#pressure-display')
     .attr('y', margin + bottomTopY)
     .attr('width', leftRightX)
     .attr('height', leftRightY)
-    .attr('fill', 'transparent')
+    .attr('fill', fill)
     .attr('stroke', 'black')
 d3.select('svg#pressure-display')
     .append('rect')
@@ -58,8 +59,15 @@ d3.select('svg#pressure-display')
     .attr('y', margin + bottomTopY)
     .attr('width', leftRightX)
     .attr('height', leftRightY)
-    .attr('fill', 'transparent')
+    .attr('fill', fill)
     .attr('stroke', 'black')
+
+function drawCenterCircles() {
+    d3.select('svg#pressure-display')
+        for (i=1; i<=49; i++) {
+            
+        }
+}
 
 /*top/bottom/x (L2R): 6-16-16-30.5-30.5-16-16-6
 left/right/x (OFC): 7-15-14-4
