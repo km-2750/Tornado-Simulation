@@ -1,5 +1,6 @@
 h1#main-head {
     font-family: 'Amatic SC', cursive;
+    font-size: 50px;
     color: #4646E6;
     border: 5px solid #0A0A39;
     border-style: ridge;
@@ -8,4 +9,18 @@ h1#main-head {
 
 body {
     background-color: #FDFEF7;
+}
+
+.content {
+    max-width: 1000px;
+    margin: auto;
+  }
+
+p#time-display {
+    font-size: 30px;
+}
+
+p#license {
+    text-align: right;
+    font-size: 20px;
 }

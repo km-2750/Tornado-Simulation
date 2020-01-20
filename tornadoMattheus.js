@@ -11,11 +11,6 @@ const centerY = 91 * scale
 const dispWidth = (2 * margin) + ((2 * leftRightX) + centerX)
 const dispHeight = (2 * margin) + ((2 * bottomTopY) + (centerY))
 
-/*left/right: 40x91
-bottom/top: 137x43
-Middle: 137x91
-(WxH)*/
-
 d3.select('div.content')
     .append('svg')
     .attr('id', 'pressure-display')
@@ -65,3 +60,14 @@ d3.select('svg#pressure-display')
     .attr('height', leftRightY)
     .attr('fill', 'transparent')
     .attr('stroke', 'black')
+
+/*top/bottom/x (L2R): 6-16-16-30.5-30.5-16-16-6
+left/right/x (OFC): 7-15-14-4
+top/bottom/y (OFC): 5-15-14-6
+center/y (T2B): 6-9.5-9.5-20.5-20.5-9.5-9.5-6*/
+
+/*center is 1-49 (by row, top to bottom, left to right)
+top is 50-70 (by row, bottom to top, left to right)
+bottom is 71-91 (by row, top to bottom, left to right)
+left is 92-106 (by column, top to bottom, right to left)
+right is 107-121 (by column, top to bottom, left to right)*/
