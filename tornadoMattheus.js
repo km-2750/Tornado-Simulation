@@ -152,9 +152,6 @@ var circleAttributes = circles
                         .attr('r', 5)
                         .style('fill', 'blue');
 
-
-
-
 /*top/bottom/x (L2R): 6-16-16-30.5-30.5-16-16-6
 left/right/x (OFC): 7-15-14-4
 top/bottom/y (OFC): 5-15-14-6
