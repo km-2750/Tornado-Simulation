@@ -1,7 +1,5 @@
-let time = 0
-let data = [0,1,2,3];
-
 d3.csv('tornadoPressureData1.CSV').then(function(d) {
+    console.log(d)
     draw(d)
 })
 
@@ -12,27 +10,40 @@ function draw(data){
         timeData.push(timeValue)
     }
 
-    let sensor1Data = []
+    let  sensorData= [{
+        "sensor1": []
+    }]
     for (i in data) {
         let sensor1Value = Number((data[i].Sensor1))
-        sensor1Data.push(sensor1Value)
+        sensorData[0]['sensor1'].push(sensor1Value)
     }
-    drawSlider(timeData,sensor1Data)
-}
-function drawColor(colorData, index){
-    var pressureColorScale = d3.scaleSequential()
-      .domain(d3.extent(data))
-     .interpolator(d3.interpolateRainbow)
+    let ColorDomain = data.map(d => d.Sensor1)
+    let pressureColorScale = 
+    d3.scaleSequential()
+        .domain(d3.extent(ColorDomain))
+        .interpolator(d3.interpolateRainbow)
+
+    drawSlider(timeData,sensorData)
     d3.select('svg#pressure-display')
         .selectAll('circle')
-        .data(colorData)
+        .data(sensorData)
         .enter()
         .append('circle')
         .attr('cx', 150)
         .attr('cy', 150)
         .attr('r', 20)
-        .attr("fill", pressureColorScale(colorData[index]))
+        .attr("fill", (d,i) => pressureColorScale(sensorData[i].sensor1[0])) 
         .attr("stroke","transparent")
+}
+function drawColor(colorData, index){
+    let pressureColorScale = 
+    d3.scaleSequential()
+        .domain(d3.extent(colorData[0]['sensor1']))
+        .interpolator(d3.interpolateRainbow)
+        console.log(d3.extent(colorData[0]['sensor1']))
+    d3.select('svg#pressure-display')
+        .selectAll('circle')
+        .attr("fill", pressureColorScale(colorData[0]['sensor1'][index]))
 }
 
 /* I edited out this function It works with the callback function
