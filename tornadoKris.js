@@ -1,49 +1,130 @@
-d3.csv('tornadoPressureData1.CSV').then(function(d) {
-    console.log(d)
-    draw(d)
+trialData = []
+d3.csv('tornadoPressureData1.CSV').then(d => {
+    drawData(d) 
+    trialData = d
 })
+d3.select('svg#pressure-test')
+    .attr('width', 800)
+    .attr('height', 400)
 
-function draw(data){
-    let timeData = []
+function drawData(data){
+    //Javascript drawing function for whole page relating to data
+    let cleanedData = analyzeData(data)
+    let sensorData = getSensorData(data)
+    let timeData = getTimeData(data)
+    update(sensorData)
+    drawInteraction(cleanedData)
+}
+
+function drawCircles(sensorData){
+    //Draws the circles from the data on the page
+    d3.select('svg#pressure-test')
+        .selectAll('circle')
+        .data(sensorData)
+        .enter()
+        .append('circle')
+        .attr('cx', (d,i) => 20+i*10)
+        .attr('cy', 150)
+        .attr('r', 5) 
+        .attr("stroke","transparent")
+}
+
+function analyzeData(data){
+    //Takes in data and reformats to array of first a time object then sensor objects
+    //from reformated arrays for sensor data and time data
+    let cleanedData = []
+    timeData = getTimeData(data)
+    sensorData = getSensorData(data)
+    cleanedData.push(timeData)
+    for (let value of sensorData){
+        cleanedData.push(value)
+    }
+    console.log(cleanedData)
+    return cleanedData
+}
+function getTimeData(data){
+    //takes csv data returns object of time
+    let timeArray = []
     for (i in data) {
         let timeValue = Number((data[i].Time))
-        timeData.push(timeValue)
+        timeArray.push(timeValue)
     }
+    let timeObj = {}
+    timeObj["Time"] = timeArray
+    return timeObj
+}
+function getSensorData(data){
+    //Takes in csv data, reformates to an object for each sensor
+    sensorNames = ['Sensor1','Sensor2','Sensor3','Sensor4','Sensor5',
+        'Sensor6','Sensor7','Sensor8','Sensor9','Sensor10','Sensor11',
+        'Sensor12','Sensor13','Sensor14','Sensor15','Sensor16','Sensor17',
+        'Sensor18','Sensor19','Sensor20','Sensor21','Sensor22','Sensor23',
+        'Sensor24','Sensor25','Sensor26','Sensor27','Sensor28','Sensor29',
+        'Sensor30','Sensor31','Sensor32','Sensor33','Sensor34','Sensor35',
+        'Sensor36','Sensor37','Sensor38','Sensor39','Sensor40','Sensor41',
+        'Sensor42','Sensor43','Sensor44','Sensor45','Sensor46','Sensor47',
+        'Sensor48','Sensor49','Sensor50','Sensor51','Sensor52','Sensor53',
+        'Sensor54','Sensor55','Sensor56','Sensor57','Sensor58','Sensor59',
+        'Sensor60','Sensor61','Sensor62','Sensor63','Sensor64','Sensor65',
+        'Sensor66','Sensor67','Sensor68','Sensor69','Sensor70','Sensor71',
+        'Sensor72','Sensor73','Sensor74','Sensor75','Sensor76','Sensor77',
+        'Sensor78','Sensor79','Sensor80','Sensor81','Sensor82','Sensor83',
+        'Sensor84','Sensor85','Sensor86','Sensor87','Sensor88','Sensor89',
+        'Sensor90','Sensor91','Sensor92','Sensor93','Sensor94','Sensor95',
+        'Sensor96','Sensor97','Sensor98','Sensor99','Sensor100','Sensor101',
+        'Sensor102','Sensor103','Sensor104','Sensor105','Sensor106','Sensor107',
+        'Sensor108','Sensor109','Sensor110','Sensor111','Sensor112','Sensor113',
+        'Sensor114','Sensor115','Sensor116','Sensor117','Sensor118','Sensor119',
+        'Sensor120','Sensor121','Static']
+    let  sensorData= []
+    for(let sensorName of sensorNames){
+        let sensorValues = []
+        for(i in data){
+            let sensorValue = Number(data[i][sensorName])
+            sensorValues.push(sensorValue)
+        }
+        sensorObj = {}
+        sensorObj['Name'] = sensorName
+        sensorObj['PressureData'] = sensorValues
+        sensorData.push(sensorObj)
+    }
+    return sensorData
+}
 
-    let  sensorData= [{
-        "sensor1": []
-    }]
-    for (i in data) {
-        let sensor1Value = Number((data[i].Sensor1))
-        sensorData[0]['sensor1'].push(sensor1Value)
-    }
+function drawInteraction(data){
     let ColorDomain = data.map(d => d.Sensor1)
     let pressureColorScale = 
     d3.scaleSequential()
         .domain(d3.extent(ColorDomain))
         .interpolator(d3.interpolateRainbow)
-
-    drawSlider(timeData,sensorData)
-    d3.select('svg#pressure-display')
-        .selectAll('circle')
-        .data(sensorData)
-        .enter()
-        .append('circle')
-        .attr('cx', 150)
-        .attr('cy', 150)
-        .attr('r', 20)
-        .attr("fill", (d,i) => pressureColorScale(sensorData[i].sensor1[0])) 
-        .attr("stroke","transparent")
+    drawSlider(data)
 }
-function drawColor(colorData, index){
+
+function update(index = 0){
     let pressureColorScale = 
     d3.scaleSequential()
-        .domain(d3.extent(colorData[0]['sensor1']))
+        .domain(d3.extent(sensorData[0]['PressureData']))
         .interpolator(d3.interpolateRainbow)
-        console.log(d3.extent(colorData[0]['sensor1']))
-    d3.select('svg#pressure-display')
+    d3.select('svg#pressure-test')
         .selectAll('circle')
-        .attr("fill", pressureColorScale(colorData[0]['sensor1'][index]))
+        .data(sensorData)
+        .join(
+            enter =>
+                enter
+                    .append('circle')
+                    .attr('cx', (d,i) => 20+i*10)
+                    .attr('cy', 150)
+                    .attr('r', 5) 
+                    .attr("stroke","transparent")
+                    .style('fill','pink'),
+            update => {
+                update  
+                    .style("fill", d => pressureColorScale(d.PressureData[index]))
+                },
+            exit => 
+                exit
+                    .remove()
+        )
 }
 
 /* I edited out this function It works with the callback function
@@ -64,8 +145,11 @@ on method will update display to show where the slider is but it's continuous
 I think we'll need to update it so it is discrete so it will only choose points where we have data
 I don't know how to do that.
 */
-function drawSlider(timeData,colorData) {
 
+function drawSlider(data) {
+    timeData = data[0]["Time"]
+    data.shift()
+    console.log(data)
     var sliderSimple = d3
         .sliderBottom()
         .min(d3.min(timeData))
@@ -81,10 +165,8 @@ function drawSlider(timeData,colorData) {
             let timeIndex = timeData.indexOf(val)
             d3.select('p#time-display').text(`The time is ${val}`); //skiped format to work with only raw time value
             d3.select('p#index-display').text(`The index is ${timeIndex}`);
-            drawColor(colorData,timeIndex)
-
+            update(timeIndex)
         });
-
     /* I don't know what this does yet it might generate the svg to stick slider on???*/
     var gSimple = d3
         .select('div#slider')
@@ -97,85 +179,3 @@ function drawSlider(timeData,colorData) {
     //Call svg creation based on sliderSimple function???//
     gSimple.call(sliderSimple);
 }
-
-let margin = 5
-let scale = 4
-let fill = 'white'
-
-//Constants DO NOT CHANGE
-const leftRightX = 40 * scale
-const leftRightY = 91 * scale
-const bottomTopX = 137 * scale
-const bottomTopY = 43 * scale
-const centerX = 137 * scale
-const centerY = 91 * scale
-const dispWidth = (2 * margin) + ((2 * leftRightX) + centerX)
-const dispHeight = (2 * margin) + ((2 * bottomTopY) + (centerY))
-
-d3.select('div.content')
-    .append('svg')
-    .attr('id', 'pressure-display')
-    .attr('width', dispWidth)
-    .attr('height', dispHeight)
-    .append('rect')
-    .attr('id', 'top')
-    .attr('x', margin + leftRightX)
-    .attr('y', margin)
-    .attr('width', bottomTopX)
-    .attr('height', bottomTopY)
-    .attr('fill', fill)
-    .attr('stroke', 'black')
-d3.select('svg#pressure-display')
-    .append('rect')
-    .attr('id', 'center')
-    .attr('x', margin + leftRightX)
-    .attr('y', margin + bottomTopY)
-    .attr('width', centerX)
-    .attr('height', centerY)
-    .attr('fill', fill)
-    .attr('stroke', 'black')
-d3.select('svg#pressure-display')
-    .append('rect')
-    .attr('id', 'bottom')
-    .attr('x', margin + leftRightX)
-    .attr('y', margin + bottomTopY + centerY)
-    .attr('width', bottomTopX)
-    .attr('height', bottomTopY)
-    .attr('fill', fill)
-    .attr('stroke', 'black')
-d3.select('svg#pressure-display')
-    .append('rect')
-    .attr('id', 'left')
-    .attr('x', margin)
-    .attr('y', margin + bottomTopY)
-    .attr('width', leftRightX)
-    .attr('height', leftRightY)
-    .attr('fill', fill)
-    .attr('stroke', 'black')
-d3.select('svg#pressure-display')
-    .append('rect')
-    .attr('id', 'right')
-    .attr('x', margin + leftRightX + bottomTopX) 
-    .attr('y', margin + bottomTopY)
-    .attr('width', leftRightX)
-    .attr('height', leftRightY)
-    .attr('fill', fill)
-    .attr('stroke', 'black')
-
-function drawCenterCircles() {
-    d3.select('svg#pressure-display')
-        for (i=1; i<=49; i++) {
-            
-        }
-}
-
-/*top/bottom/x (L2R): 6-16-16-30.5-30.5-16-16-6
-left/right/x (OFC): 7-15-14-4
-top/bottom/y (OFC): 5-15-14-6
-center/y (T2B): 6-9.5-9.5-20.5-20.5-9.5-9.5-6*/
-
-/*center is 1-49 (by row, top to bottom, left to right)
-top is 50-70 (by row, bottom to top, left to right)
-bottom is 71-91 (by row, top to bottom, left to right)
-left is 92-106 (by column, top to bottom, right to left)
-right is 107-121 (by column, top to bottom, left to right)*/

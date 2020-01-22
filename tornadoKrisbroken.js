@@ -115,11 +115,11 @@ function update(index = 0){
                     .attr('cx', (d,i) => 20+i*10)
                     .attr('cy', 150)
                     .attr('r', 5) 
-                    .attr("stroke","transparent"),
+                    .attr("stroke","transparent")
+                    .style('fill','pink'),
             update => {
-                console.log('Hi I work')
                 update  
-                    .style("fill", (d,i) => pressureColorScale(sensorData[i]['PressureData'][index]))
+                    .style("fill", d => pressureColorScale(d.PressureData[index]))
                 },
             exit => 
                 exit
@@ -165,7 +165,7 @@ function drawSlider(data) {
             let timeIndex = timeData.indexOf(val)
             d3.select('p#time-display').text(`The time is ${val}`); //skiped format to work with only raw time value
             d3.select('p#index-display').text(`The index is ${timeIndex}`);
-            update(sensorData, timeIndex)
+            update(timeIndex)
         });
     /* I don't know what this does yet it might generate the svg to stick slider on???*/
     var gSimple = d3
