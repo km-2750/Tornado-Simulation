@@ -13,13 +13,28 @@
 <body>
     <div class="content">
         <h1 id="main-head">Tornado Visualization</h1>
-        <button id="play-button">Play</button>
-        <button id="pause-button">Pause</button>
+        <p id="tutorial">This is a visualization of pressure on a house from a tornado. To use, please adjust the scrubber to the time you would like to view. 
+            The color on the display below then shows the ammount of pressure on each point of the house. The center of the display represents the roof, 
+            with the four pieces coming off of it representing the walls.</p>
+        <div class="slidecontainer">
+            Time:
+            <input
+                type="range"
+                min="0"
+                max="30"
+                value="0"
+                class="slider"
+                id="time-slider"
+                step=".0025"
+            />
+            </div>
+        <button id="play-pause" width="90"></button>
+        <select id="selectButton"></select>
         <div id="slider"></div>
         <p id="time-display">This is what will change</p>
         <p id ='index-display'>Index is:</p>
-        <script src="tornado.js"></script>
         <script src="tornadoMattheus.js"></script>
+        <script src="tornadoKris.js"></script>
         <p id='license'>Developed by Kris and Mattheus</p>
     </div>
 </body>

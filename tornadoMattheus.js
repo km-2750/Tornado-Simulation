@@ -1,5 +1,5 @@
-let margin = 5
-let scale = 4
+let margin = 10
+let scale = 3
 let fill = 'white'
 
 //Constants DO NOT CHANGE
@@ -96,12 +96,11 @@ d3.select('svg#pressure-display')
     .attr('id', 'right-circles')
     .attr('transform', rightTransformation)
 
-let circleData = []
-d3.csv('pressureTapInfo.csv').then(draw)
+d3.csv('pressureTapInfo.csv').then(drawCircles)
 
 let fillColor = 'black'
 
-function draw(circleData) {
+function drawCircles(circleData) {
     for (let i=0; i<circleData.length; i++) {
         if (Number.isInteger(circleData[i].sensorNumber / 2)) {
             fillColor = 'blue'
@@ -116,4 +115,71 @@ function draw(circleData) {
             .attr('r', 5)
             .attr('fill', fillColor)
     }
+}
+
+var allGroup = ["i-2", "i-1", "i", "i+1", "i+2"]
+
+// add the options to the button
+d3.select("#selectButton")
+    .selectAll('myOptions')
+    .data(allGroup)
+    .enter()
+    .append('option')
+    .text(function (d) { return d; }) // text showed in the menu
+    .attr("value", function (d) { return d; })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+let [minTime, maxTime] = [0, 30]
+let transitionTime = 10
+let updatingColor = false
+let timer
+
+d3.select('#time-slider').on('input', function() {
+    update_time(+this.value)
+})
+
+d3.select('button#play-pause')
+    .on('click', function() {
+        let self = d3.select(this)
+        updatingColor = !updatingColor
+        self.text(updatingColor ? 'Pause' : 'Play')
+        if (updatingColor) {
+            timer = setInterval(step, transitionTime)
+        } else {
+            clearInterval(timer)
+        }
+    })
+    .text(updatingColor ? 'Pause' : 'Play')
+
+
+function update_time(time) {
+    if (time > maxTime || time < minTime) {
+        time = minTime
+    }
+    d3.select('#time-display').text(time)
+    d3.select('#time-slider').property('value', time)
+}
+
+function step() {
+    let time = Number(d3.select('input#time-slider').property('value'))
+    if (updatingColor) {
+        time = time + .0025
+        if (time > maxTime || time < minTime) {
+            time = minTime
+        }
+    }
+    update_time(time)
 }
