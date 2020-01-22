@@ -95,8 +95,9 @@ d3.select('svg#pressure-display')
     .append('g')
     .attr('id', 'right-circles')
     .attr('transform', rightTransformation)
-
+/*
 d3.csv('pressureTapInfo.csv').then(drawCircles)
+
 
 let fillColor = 'black'
 
@@ -116,7 +117,7 @@ function drawCircles(circleData) {
             .attr('fill', fillColor)
     }
 }
-
+*/
 var allGroup = ["i-2", "i-1", "i", "i+1", "i+2"]
 
 // add the options to the button
@@ -127,21 +128,7 @@ d3.select("#selectButton")
     .append('option')
     .text(function (d) { return d; }) // text showed in the menu
     .attr("value", function (d) { return d; })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/*
 let [minTime, maxTime] = [0, 30]
 let transitionTime = 10
 let updatingColor = false
@@ -149,6 +136,7 @@ let timer
 
 d3.select('#time-slider').on('input', function() {
     update_time(+this.value)
+    update(+this.value)
 })
 
 d3.select('button#play-pause')
@@ -183,3 +171,4 @@ function step() {
     }
     update_time(time)
 }
+*/

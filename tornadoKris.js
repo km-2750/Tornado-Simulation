@@ -14,7 +14,7 @@ function drawData(data){
     let cleanedData = analyzeData(data)
     let sensorData = getSensorData(data)
     let timeData = getTimeData(data)
-    update()
+    updateColor()
     drawInteraction(cleanedData)
 }
 
@@ -91,10 +91,9 @@ function drawInteraction(data){
     d3.scaleSequential()
         .domain(d3.extent(ColorDomain))
         .interpolator(d3.interpolateRainbow)
-    drawSlider(data)
 }
 
-function update(index = 0){
+function updateColor(index = 0){
     let pressureColorScale = 
     d3.scaleSequential()
         .domain(d3.extent(sensorData[0]['PressureData']))
@@ -103,15 +102,14 @@ function update(index = 0){
         .selectAll('circle')
         .data(sensorData)
         .join(
-            enter => {
+            enter => 
                 enter 
                     .select('g#' +sensorData[0].group+ '-circles') //' +sensorData[i].group+ '
                     .append('circle')
                     .attr('cx', (d,i) => sensorData[i].cx * scale)
                     .attr('cy', (d,i) => sensorData[i].cy * scale)
                     .attr('r', 5)
-                    .attr("stroke","transparent")
-            },
+                    .attr("stroke","transparent"),
             update => 
                 update  
                     .style("fill", d => pressureColorScale(d.PressureData[index])),
@@ -136,51 +134,47 @@ function slideTime(value) {
 sets min max based on data
 formats ticks - I don't know what's going on I changed values and didn't get it
 on method will update display to show where the slider is but it's continuous
-I think we'll need to update it so it is discrete so it will only choose points where we have data
-I don't know how to do that.
+I think we'll need to update it so it is discrete so .0025
 */
+let [minTime, maxTime] = [0, 11999]
+let transitionTime = 10
+let updatingColor = false
+let timer
 
-function drawSlider(data) {
-    timeData = data[0]["Time"]
-    data.shift()
-    var sliderSimple = d3
-        .sliderBottom()
-        .min(d3.min(timeData))
-        .max(d3.max(timeData))
-        .step(2496) //update to change step
-        .fill('#2196f3')
-        .width(300)
-        .tickFormat(d3.format('.3')) //This number does idk, is '.3' in original
-        .ticks(5) //This number changes the number of ticks but the number does not equal the number of ticks???, is 5 in original
-        .default(0) //This number changes what number the selector starts at, is 0 in original
-        .on('onchange', val => {
-            //time = d3.format('.2')(val) //This number in the format function changes the number of decimal places, is '.2' in original
-            let timeIndex = timeData.indexOf(val)
-            d3.select('p#time-display').text(`The time is ${val}`); //skiped format to work with only raw time value
-            d3.select('p#index-display').text(`The index is ${timeIndex}`);
-            update(timeIndex)
-        });
-    /* I don't know what this does yet it might generate the svg to stick slider on???*/
-    var gSimple = d3
-        .select('div#slider')
-        .append('svg')
-        .attr('width', 500)
-        .attr('height', 100)
-        .append('g')
-        .attr('transform', 'translate(30,30)');
+d3.select('#time-slider').on('input', function() {
+    update_time(+this.value)
+})
 
-    //Call svg creation based on sliderSimple function???//
-    gSimple.call(sliderSimple);
-}
-/*
-let fillColor = 'black'
-
-function draw(circleData) {
-    for (let i=0; i<circleData.length; i++) {
-        if (Number.isInteger(circleData[i].sensorNumber / 2)) {
-            fillColor = 'blue'
+d3.select('button#play-pause')
+    .on('click', function() {
+        let self = d3.select(this)
+        updatingColor = !updatingColor
+        self.text(updatingColor ? 'Pause' : 'Play')
+        if (updatingColor) {
+            timer = setInterval(step, transitionTime)
         } else {
-            fillColor = 'red'
+            clearInterval(timer)
         }
-        console.log(circleData[i].group)center-
-*/
+    })
+    .text(updatingColor ? 'Pause' : 'Play')
+
+
+function update_time(time) {
+    if (time > maxTime || time < minTime) {
+        time = minTime
+    }
+    d3.select('#time-display').text(time*.0025)
+    d3.select('#time-slider').property('value', time)
+    updateColor(time)
+}
+
+function step() {
+    let time = Number(d3.select('input#time-slider').property('value'))
+    if (updatingColor) {
+        time = time + 1
+        if (time > maxTime || time < minTime) {
+            time = minTime
+        }
+    }
+    update_time(time)
+}
