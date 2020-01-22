@@ -105,13 +105,13 @@ function update(index = 0){
         .join(
             enter => {
                 enter 
-                    .select((d,i) => ('g#'+ sensorData[i].group + 'circles')) //sensorData[i].group
+                    .select('g#' +sensorData[0].group+ '-circles') //' +sensorData[i].group+ '
                     .append('circle')
                     .attr('cx', (d,i) => sensorData[i].cx * scale)
                     .attr('cy', (d,i) => sensorData[i].cy * scale)
                     .attr('r', 5)
                     .attr("stroke","transparent")
-                },
+            },
             update => 
                 update  
                     .style("fill", d => pressureColorScale(d.PressureData[index])),
