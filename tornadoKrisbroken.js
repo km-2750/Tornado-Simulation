@@ -3,28 +3,29 @@ d3.csv('tornadoPressureData1.CSV').then(d => {
     drawData(d) 
     trialData = d
 })
+d3.select('svg#pressure-test')
+    .attr('width', 800)
+    .attr('height', 400)
 
 function drawData(data){
     //Javascript drawing function for whole page relating to data
     let cleanedData = analyzeData(data)
     let sensorData = getSensorData(data)
     let timeData = getTimeData(data)
-    drawCircles(sensorData)
+    update(sensorData)
+    drawInteraction(cleanedData)
 }
 
 function drawCircles(sensorData){
     //Draws the circles from the data on the page
     d3.select('svg#pressure-test')
-        .attr('width', 400)
-        .attr('height', 400)
         .selectAll('circle')
         .data(sensorData)
         .enter()
         .append('circle')
-        .attr('cx', (d,i) => 20+i*5)
+        .attr('cx', (d,i) => 20+i*10)
         .attr('cy', 150)
-        .attr('r', 5)
-        .attr("fill", (d,i) => pressureColorScale(sensorData[i].sensor1[0])) 
+        .attr('r', 5) 
         .attr("stroke","transparent")
 }
 
@@ -54,7 +55,7 @@ function getTimeData(data){
 }
 function getSensorData(data){
     //Takes in csv data, reformates to an object for each sensor
-    sensorNames =['Sensor1','Sensor2','Sensor3','Sensor4','Sensor5',
+    sensorNames = ['Sensor1','Sensor2','Sensor3','Sensor4','Sensor5',
         'Sensor6','Sensor7','Sensor8','Sensor9','Sensor10','Sensor11',
         'Sensor12','Sensor13','Sensor14','Sensor15','Sensor16','Sensor17',
         'Sensor18','Sensor19','Sensor20','Sensor21','Sensor22','Sensor23',
@@ -96,31 +97,34 @@ function drawInteraction(data){
     d3.scaleSequential()
         .domain(d3.extent(ColorDomain))
         .interpolator(d3.interpolateRainbow)
-
-    drawSlider(timeData,sensorData)
-    d3.select('svg#pressure-test')
-        .attr('width', 400)
-        .attr('height', 400)
-        .selectAll('circle')
-        .data(sensorData)
-        .enter()
-        .append('circle')
-        .attr('cx', 150)
-        .attr('cy', 150)
-        .attr('r', 20)
-        .attr("fill", (d,i) => pressureColorScale(sensorData[i].sensor1[0])) 
-        .attr("stroke","transparent")
+    drawSlider(data)
 }
 
-function drawColor(colorData, index){
+function update(index = 0){
     let pressureColorScale = 
     d3.scaleSequential()
-        .domain(d3.extent(colorData[0]['sensor1']))
+        .domain(d3.extent(sensorData[0]['PressureData']))
         .interpolator(d3.interpolateRainbow)
-        console.log(d3.extent(colorData[0]['sensor1']))
     d3.select('svg#pressure-test')
         .selectAll('circle')
-        .attr("fill", pressureColorScale(colorData[0]['sensor1'][index]))
+        .data(sensorData)
+        .join(
+            enter =>
+                enter
+                    .append('circle')
+                    .attr('cx', (d,i) => 20+i*10)
+                    .attr('cy', 150)
+                    .attr('r', 5) 
+                    .attr("stroke","transparent"),
+            update => {
+                console.log('Hi I work')
+                update  
+                    .style("fill", (d,i) => pressureColorScale(sensorData[i]['PressureData'][index]))
+                },
+            exit => 
+                exit
+                    .remove()
+        )
 }
 
 /* I edited out this function It works with the callback function
@@ -141,8 +145,11 @@ on method will update display to show where the slider is but it's continuous
 I think we'll need to update it so it is discrete so it will only choose points where we have data
 I don't know how to do that.
 */
-function drawSlider(timeData,colorData) {
 
+function drawSlider(data) {
+    timeData = data[0]["Time"]
+    data.shift()
+    console.log(data)
     var sliderSimple = d3
         .sliderBottom()
         .min(d3.min(timeData))
@@ -158,10 +165,8 @@ function drawSlider(timeData,colorData) {
             let timeIndex = timeData.indexOf(val)
             d3.select('p#time-display').text(`The time is ${val}`); //skiped format to work with only raw time value
             d3.select('p#index-display').text(`The index is ${timeIndex}`);
-            drawColor(colorData,timeIndex)
-
+            update(sensorData, timeIndex)
         });
-
     /* I don't know what this does yet it might generate the svg to stick slider on???*/
     var gSimple = d3
         .select('div#slider')
