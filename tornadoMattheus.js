@@ -1,6 +1,3 @@
-let circleData = []
-d3.csv('pressureTapInfo.csv').then(d => circleData = d)
-
 let margin = 5
 let scale = 4
 let fill = 'white'
@@ -99,16 +96,24 @@ d3.select('svg#pressure-display')
     .attr('id', 'right-circles')
     .attr('transform', rightTransformation)
 
-groupList = ['top', 'center', 'bottom', 'left', 'right']
+let circleData = []
+d3.csv('pressureTapInfo.csv').then(draw)
 
-for (let groupName of groupList) {
-    d3.select('g#' + groupName + '-circles')
-        .selectAll('circle')
-        .data(circleData.filter(d => (d.group === groupName)))
-        .enter()
-        .append('circle')
-        .attr('cx', d => scale * Number(d.cx))
-        .attr('cy', d => scale * Number(d.cy))
-        .attr('r', 5)
-        .attr('fill', 'blue')
+let fillColor = 'black'
+
+function draw(circleData) {
+    for (let i=0; i<circleData.length; i++) {
+        if (Number.isInteger(circleData[i].sensorNumber / 2)) {
+            fillColor = 'blue'
+        } else {
+            fillColor = 'red'
+        }
+        console.log(circleData[i].group)
+        d3.select('g#' + circleData[i].group + '-circles')
+            .append('circle')
+            .attr('cx', circleData[i].cx * scale)
+            .attr('cy', circleData[i].cy * scale)
+            .attr('r', 5)
+            .attr('fill', fillColor)
+    }
 }
