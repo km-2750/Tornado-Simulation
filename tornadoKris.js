@@ -1,32 +1,21 @@
 trialData = []
-d3.csv('tornadoPressureData1.CSV').then(d => {
-    drawData(d) 
-    trialData = d
+circleData = []
+d3.csv('pressureTapInfo.csv').then(d=> {
+    circleData = d
+    d3.csv('tornadoPressureData1.CSV').then(d => {
+        drawData(d) 
+        trialData = d
+    })
 })
-d3.select('svg#pressure-test')
-    .attr('width', 800)
-    .attr('height', 400)
+
 
 function drawData(data){
     //Javascript drawing function for whole page relating to data
     let cleanedData = analyzeData(data)
     let sensorData = getSensorData(data)
     let timeData = getTimeData(data)
-    update(sensorData)
+    update()
     drawInteraction(cleanedData)
-}
-
-function drawCircles(sensorData){
-    //Draws the circles from the data on the page
-    d3.select('svg#pressure-test')
-        .selectAll('circle')
-        .data(sensorData)
-        .enter()
-        .append('circle')
-        .attr('cx', (d,i) => 20+i*10)
-        .attr('cy', 150)
-        .attr('r', 5) 
-        .attr("stroke","transparent")
 }
 
 function analyzeData(data){
@@ -39,7 +28,6 @@ function analyzeData(data){
     for (let value of sensorData){
         cleanedData.push(value)
     }
-    console.log(cleanedData)
     return cleanedData
 }
 function getTimeData(data){
@@ -76,7 +64,8 @@ function getSensorData(data){
         'Sensor108','Sensor109','Sensor110','Sensor111','Sensor112','Sensor113',
         'Sensor114','Sensor115','Sensor116','Sensor117','Sensor118','Sensor119',
         'Sensor120','Sensor121','Static']
-    let  sensorData= []
+    let  sensorData = []
+    let count = 0 
     for(let sensorName of sensorNames){
         let sensorValues = []
         for(i in data){
@@ -86,7 +75,12 @@ function getSensorData(data){
         sensorObj = {}
         sensorObj['Name'] = sensorName
         sensorObj['PressureData'] = sensorValues
+        sensorObj['sensorNumber'] = circleData[count]['sensorNumber']
+        sensorObj['group'] = circleData[count]['group']
+        sensorObj['cx'] = circleData[count]['cx']
+        sensorObj['cy'] = circleData[count]['cy']
         sensorData.push(sensorObj)
+        count ++
     }
     return sensorData
 }
@@ -105,22 +99,22 @@ function update(index = 0){
     d3.scaleSequential()
         .domain(d3.extent(sensorData[0]['PressureData']))
         .interpolator(d3.interpolateRainbow)
-    d3.select('svg#pressure-test')
+    d3.select('svg#pressure-display')
         .selectAll('circle')
         .data(sensorData)
         .join(
-            enter =>
-                enter
+            enter => {
+                enter 
+                    .select((d,i) => ('g#'+ sensorData[i].group + 'circles')) //sensorData[i].group
                     .append('circle')
-                    .attr('cx', (d,i) => 20+i*10)
-                    .attr('cy', 150)
-                    .attr('r', 5) 
+                    .attr('cx', (d,i) => sensorData[i].cx * scale)
+                    .attr('cy', (d,i) => sensorData[i].cy * scale)
+                    .attr('r', 5)
                     .attr("stroke","transparent")
-                    .style('fill','pink'),
-            update => {
-                update  
-                    .style("fill", d => pressureColorScale(d.PressureData[index]))
                 },
+            update => 
+                update  
+                    .style("fill", d => pressureColorScale(d.PressureData[index])),
             exit => 
                 exit
                     .remove()
@@ -149,7 +143,6 @@ I don't know how to do that.
 function drawSlider(data) {
     timeData = data[0]["Time"]
     data.shift()
-    console.log(data)
     var sliderSimple = d3
         .sliderBottom()
         .min(d3.min(timeData))
@@ -179,3 +172,15 @@ function drawSlider(data) {
     //Call svg creation based on sliderSimple function???//
     gSimple.call(sliderSimple);
 }
+/*
+let fillColor = 'black'
+
+function draw(circleData) {
+    for (let i=0; i<circleData.length; i++) {
+        if (Number.isInteger(circleData[i].sensorNumber / 2)) {
+            fillColor = 'blue'
+        } else {
+            fillColor = 'red'
+        }
+        console.log(circleData[i].group)center-
+*/
