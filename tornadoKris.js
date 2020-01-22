@@ -12,7 +12,7 @@ function drawData(data){
     let cleanedData = analyzeData(data)
     let sensorData = getSensorData(data)
     let timeData = getTimeData(data)
-    update(sensorData)
+    update()
     drawInteraction(cleanedData)
 }
 
@@ -115,8 +115,7 @@ function update(index = 0){
                     .attr('cx', (d,i) => 20+i*10)
                     .attr('cy', 150)
                     .attr('r', 5) 
-                    .attr("stroke","transparent")
-                    .style('fill','pink'),
+                    .attr("stroke","transparent"),
             update => {
                 update  
                     .style("fill", d => pressureColorScale(d.PressureData[index]))
