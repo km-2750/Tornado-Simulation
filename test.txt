@@ -3,3 +3,179 @@
     .append("input")
     .attr("type", "range")
     .attr("id", "time-slider")
+
+
+/*let margin = 10
+let scale = 3
+let fill = 'white'
+
+//Constants DO NOT CHANGE
+const leftRightWidth = 40 * scale
+const leftRightHeight = 91 * scale
+const bottomTopWidth = 137 * scale
+const bottomTopHeight = 43 * scale
+const centerWidth = 137 * scale
+const centerHeight = 91 * scale
+const dispWidth = (2 * margin) + ((2 * leftRightWidth) + centerWidth)
+const dispHeight = (2 * margin) + ((2 * bottomTopHeight) + (centerHeight))
+
+let centerTopBottomX = margin + leftRightWidth
+let centerLeftRightY = margin + bottomTopHeight
+let bottomY = margin + bottomTopHeight + centerHeight
+let topY = margin
+let leftX = margin
+let rightX = margin + leftRightWidth + bottomTopWidth
+
+d3.select('div.content')
+.append('svg')
+.attr('id', 'pressure-display')
+.attr('width', dispWidth)
+.attr('height', dispHeight)
+.append('rect')
+.attr('id', 'top')
+.attr('x', centerTopBottomX)
+.attr('y', topY)
+.attr('width', bottomTopWidth)
+.attr('height', bottomTopHeight)
+.attr('fill', fill)
+.attr('stroke', 'black')
+d3.select('svg#pressure-display')
+.append('rect')
+.attr('id', 'center')
+.attr('x', centerTopBottomX)
+.attr('y', centerLeftRightY)
+.attr('width', centerWidth)
+.attr('height', centerHeight)
+.attr('fill', fill)
+.attr('stroke', 'black')
+d3.select('svg#pressure-display')
+.append('rect')
+.attr('id', 'bottom')
+.attr('x', centerTopBottomX)
+.attr('y', bottomY)
+.attr('width', bottomTopWidth)
+.attr('height', bottomTopHeight)
+.attr('fill', fill)
+.attr('stroke', 'black')
+d3.select('svg#pressure-display')
+.append('rect')
+.attr('id', 'left')
+.attr('x', leftX)
+.attr('y', centerLeftRightY)
+.attr('width', leftRightWidth)
+.attr('height', leftRightHeight)
+.attr('fill', fill)
+.attr('stroke', 'black')
+d3.select('svg#pressure-display')
+.append('rect')
+.attr('id', 'right')
+.attr('x', rightX) 
+.attr('y', centerLeftRightY)
+.attr('width', leftRightWidth)
+.attr('height', leftRightHeight)
+.attr('fill', fill)
+.attr('stroke', 'black')
+
+let centerTransformation = `translate(${centerTopBottomX}, ${centerLeftRightY})`
+let topTransformation = `translate(${centerTopBottomX}, ${topY})`
+let bottomTransformation = `translate(${centerTopBottomX}, ${bottomY})`
+let leftTransformation = `translate(${leftX}, ${centerLeftRightY})`
+let rightTransformation = `translate(${rightX}, ${centerLeftRightY})`
+
+d3.select('svg#pressure-display')
+.append('g')
+.attr('id', 'center-circles')
+.attr('transform', centerTransformation)
+d3.select('svg#pressure-display')
+.append('g')
+.attr('id', 'top-circles')
+.attr('transform', topTransformation)
+d3.select('svg#pressure-display')
+.append('g')
+.attr('id', 'bottom-circles')
+.attr('transform', bottomTransformation)
+d3.select('svg#pressure-display')
+.append('g')
+.attr('id', 'left-circles')
+.attr('transform', leftTransformation)
+d3.select('svg#pressure-display')
+.append('g')
+.attr('id', 'right-circles')
+.attr('transform', rightTransformation)
+
+d3.csv('pressureTapInfo.csv').then(drawCircles)
+
+
+let fillColor = 'black'
+
+function drawCircles(circleData) {
+for (let i=0; i<circleData.length; i++) {
+    if (Number.isInteger(circleData[i].sensorNumber / 2)) {
+        fillColor = 'blue'
+    } else {
+        fillColor = 'red'
+    }
+    console.log(circleData[i].group)
+    d3.select('g#' + circleData[i].group + '-circles')
+        .append('circle')
+        .attr('cx', circleData[i].cx * scale)
+        .attr('cy', circleData[i].cy * scale)
+        .attr('r', 5)
+        .attr('fill', fillColor)
+}
+}
+
+var allGroup = ["i-2", "i-1", "i", "i+1", "i+2"]
+
+// add the options to the button
+d3.select("#selectButton")
+.selectAll('myOptions')
+.data(allGroup)
+.enter()
+.append('option')
+.text(function (d) { return d; }) // text showed in the menu
+.attr("value", function (d) { return d; })
+
+let [minTime, maxTime] = [0, 30]
+let transitionTime = 10
+let updatingColor = false
+let timer
+
+d3.select('#time-slider').on('input', function() {
+update_time(+this.value)
+update(+this.value)
+})
+
+d3.select('button#play-pause')
+.on('click', function() {
+    let self = d3.select(this)
+    updatingColor = !updatingColor
+    self.text(updatingColor ? 'Pause' : 'Play')
+    if (updatingColor) {
+        timer = setInterval(step, transitionTime)
+    } else {
+        clearInterval(timer)
+    }
+})
+.text(updatingColor ? 'Pause' : 'Play')
+
+
+function update_time(time) {
+if (time > maxTime || time < minTime) {
+    time = minTime
+}
+d3.select('#time-display').text(time)
+d3.select('#time-slider').property('value', time)
+}
+
+function step() {
+let time = Number(d3.select('input#time-slider').property('value'))
+if (updatingColor) {
+    time = time + .0025
+    if (time > maxTime || time < minTime) {
+        time = minTime
+    }
+}
+update_time(time)
+}
+*/

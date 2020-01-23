@@ -209,17 +209,18 @@ function updateColor(index = 0){
     for (let group of ['center', 'top', 'bottom', 'left','right']){
 
         filteredData = sensorData.filter(circle => circle.group === group)
-        console.log(sensorData)
+        console.log(filteredData)
+        console.log('g#' +group+ '-circles')
         d3.select('svg#pressure-display')
+            .select('g#' +group+ '-circles')  //' +sensorData[i].group+ '
             .selectAll('circle')
             .data(filteredData)
             .join(
                 enter => {
-                    enter 
-                        .select('g#' +group+ '-circles') //' +sensorData[i].group+ '
+                    enter
                         .append('circle')
-                        .attr('cx', (d,i) => filteredData[i].cx * scale)
-                        .attr('cy', (d,i) => filteredData[i].cy * scale)
+                        .attr('cx', (d,i) => (filteredData[i].cx * scale))
+                        .attr('cy', (d,i) => (filteredData[i].cy * scale))
                         .attr('r', 5)
                         .attr("stroke","transparent")
                     },
