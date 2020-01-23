@@ -1,3 +1,111 @@
+let margin = 10
+let scale = 3
+let fill = 'white'
+
+//Constants DO NOT CHANGE
+const leftRightWidth = 40 * scale
+const leftRightHeight = 91 * scale
+const bottomTopWidth = 137 * scale
+const bottomTopHeight = 43 * scale
+const centerWidth = 137 * scale
+const centerHeight = 91 * scale
+const dispWidth = (2 * margin) + ((2 * leftRightWidth) + centerWidth) + 50 + margin
+const dispHeight = (2 * margin) + ((2 * bottomTopHeight) + (centerHeight))
+
+let centerTopBottomX = margin + leftRightWidth
+let centerLeftRightY = margin + bottomTopHeight
+let bottomY = margin + bottomTopHeight + centerHeight
+let topY = margin
+let leftX = margin
+let rightX = margin + leftRightWidth + bottomTopWidth
+
+d3.select('div.content')
+    .append('svg')
+    .attr('id', 'pressure-display')
+    .attr('width', dispWidth)
+    .attr('height', dispHeight)
+    .append('rect')
+    .attr('id', 'top')
+    .attr('x', centerTopBottomX)
+    .attr('y', topY)
+    .attr('width', bottomTopWidth)
+    .attr('height', bottomTopHeight)
+    .attr('fill', fill)
+    .attr('stroke', 'black')
+d3.select('svg#pressure-display')
+    .append('rect')
+    .attr('id', 'center')
+    .attr('x', centerTopBottomX)
+    .attr('y', centerLeftRightY)
+    .attr('width', centerWidth)
+    .attr('height', centerHeight)
+    .attr('fill', fill)
+    .attr('stroke', 'black')
+d3.select('svg#pressure-display')
+    .append('rect')
+    .attr('id', 'bottom')
+    .attr('x', centerTopBottomX)
+    .attr('y', bottomY)
+    .attr('width', bottomTopWidth)
+    .attr('height', bottomTopHeight)
+    .attr('fill', fill)
+    .attr('stroke', 'black')
+d3.select('svg#pressure-display')
+    .append('rect')
+    .attr('id', 'left')
+    .attr('x', leftX)
+    .attr('y', centerLeftRightY)
+    .attr('width', leftRightWidth)
+    .attr('height', leftRightHeight)
+    .attr('fill', fill)
+    .attr('stroke', 'black')
+d3.select('svg#pressure-display')
+    .append('rect')
+    .attr('id', 'right')
+    .attr('x', rightX) 
+    .attr('y', centerLeftRightY)
+    .attr('width', leftRightWidth)
+    .attr('height', leftRightHeight)
+    .attr('fill', fill)
+    .attr('stroke', 'black')
+
+let centerTransformation = `translate(${centerTopBottomX}, ${centerLeftRightY})`
+let topTransformation = `translate(${centerTopBottomX}, ${topY})`
+let bottomTransformation = `translate(${centerTopBottomX}, ${bottomY})`
+let leftTransformation = `translate(${leftX}, ${centerLeftRightY})`
+let rightTransformation = `translate(${rightX}, ${centerLeftRightY})`
+
+d3.select('svg#pressure-display')
+    .append('g')
+    .attr('id', 'center-circles')
+    .attr('transform', centerTransformation)
+d3.select('svg#pressure-display')
+    .append('g')
+    .attr('id', 'top-circles')
+    .attr('transform', topTransformation)
+d3.select('svg#pressure-display')
+    .append('g')
+    .attr('id', 'bottom-circles')
+    .attr('transform', bottomTransformation)
+d3.select('svg#pressure-display')
+    .append('g')
+    .attr('id', 'left-circles')
+    .attr('transform', leftTransformation)
+d3.select('svg#pressure-display')
+    .append('g')
+    .attr('id', 'right-circles')
+    .attr('transform', rightTransformation)
+
+var averaging = ["None", "+/- 1", "+/- 2", "+/- 3", "+/- 4","+/- 5"]
+
+// add the options to the button
+d3.select("#selectButton")
+    .selectAll('myOptions')
+    .data(averaging)
+    .enter()
+    .append('option')
+    .text(function (d) { return d; }) // text showed in the menu
+    .attr("value", function (d) { return d; })
 trialData = []
 circleData = []
 d3.csv('pressureTapInfo.csv').then(d=> {
@@ -15,7 +123,6 @@ function drawData(data){
     let sensorData = getSensorData(data)
     let timeData = getTimeData(data)
     updateColor()
-    drawInteraction(cleanedData)
 }
 
 function analyzeData(data){
@@ -85,51 +192,55 @@ function getSensorData(data){
     return sensorData
 }
 
-function drawInteraction(data){
-    let ColorDomain = data.map(d => d.Sensor1)
-    let pressureColorScale = 
-    d3.scaleSequential()
-        .domain(d3.extent(ColorDomain))
-        .interpolator(d3.interpolateRainbow)
-}
+
+let filteredData = []
+
 
 function updateColor(index = 0){
     let pressureColorScale = 
     d3.scaleSequential()
         .domain(d3.extent(sensorData[0]['PressureData']))
         .interpolator(d3.interpolateRainbow)
-    d3.select('svg#pressure-display')
-        .selectAll('circle')
-        .data(sensorData)
-        .join(
-            enter => 
-                enter 
-                    .select('g#' +sensorData[0].group+ '-circles') //' +sensorData[i].group+ '
-                    .append('circle')
-                    .attr('cx', (d,i) => sensorData[i].cx * scale)
-                    .attr('cy', (d,i) => sensorData[i].cy * scale)
-                    .attr('r', 5)
-                    .attr("stroke","transparent"),
-            update => 
-                update  
-                    .style("fill", d => pressureColorScale(d.PressureData[index])),
-            exit => 
-                exit
-                    .remove()
+    for (let group of ['center', 'top', 'bottom', 'left','right']){
+
+        filteredData = sensorData.filter(circle => circle.group === group)
+        d3.select('svg#pressure-display')
+            .select('g#' +group+ '-circles')  //' +sensorData[i].group+ '
+            .selectAll('circle')
+            .data(filteredData)
+            .join(
+                enter => {
+                    enter
+                        .append('circle')
+                        .attr('cx', (d,i) => (filteredData[i].cx * scale))
+                        .attr('cy', (d,i) => (filteredData[i].cy * scale))
+                        .attr('r', 5)
+                        .attr("stroke","transparent")
+                    },
+                update => 
+                    update  
+                        .style("fill", d => pressureColorScale(movingAverages(d,index))),
+                exit => 
+                    exit
+                        .remove()
         )
+    }
 }
+function movingAverages (data, index) {
+    if (index > (minTime + 2) && index < (maxTime - 2)){
+        let sum = 0
+        let average
+        for (let i = index-2; i <= index+2; i++){
+            sum += data.PressureData[i]
+        }
+        average = sum/(2*2+1)
+        return average
+    }  else{
+        return data.PressureData[index]
+    }
 
-/* I edited out this function It works with the callback function
-set in the .on method but i don't know what is going on enough to change it*/
-function slideTime(value) {
-    time = d3.format('.3')(value) //This number does idk, is '.3' in original
-    d3.select("p#time-display")
-        .text(`The time is ${time}`)
+    
 }
-
-/*We want the step to be 2496 because that's the increment for the time data
-*/
-
 /*calls sliderBottom function from some other d3 library (see html header)
 sets min max based on data
 formats ticks - I don't know what's going on I changed values and didn't get it
