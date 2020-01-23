@@ -96,16 +96,21 @@ d3.select('svg#pressure-display')
     .attr('id', 'right-circles')
     .attr('transform', rightTransformation)
 
-var averaging = ["None", "+/- 1", "+/- 2", "+/- 3", "+/- 4","+/- 5"]
+const averaging = ["None", "+/- 1", "+/- 2", "+/- 3", "+/- 4","+/- 5"]
 
 // add the options to the button
 d3.select("#selectButton")
+    .on('change', () =>  updateColor(time))
     .selectAll('myOptions')
     .data(averaging)
     .enter()
     .append('option')
     .text(function (d) { return d; }) // text showed in the menu
     .attr("value", function (d) { return d; })
+d3.select("#selectButton").property('value', '+/- 2')
+    
+
+
 trialData = []
 circleData = []
 d3.csv('pressureTapInfo.csv').then(d=> {
@@ -122,7 +127,7 @@ function drawData(data){
     let cleanedData = analyzeData(data)
     let sensorData = getSensorData(data)
     let timeData = getTimeData(data)
-    updateColor()
+    updateColor(time)
 }
 
 function analyzeData(data){
@@ -197,6 +202,8 @@ let filteredData = []
 
 
 function updateColor(index = 0){
+    let selectValue = d3.select("#selectButton").property('value')
+    let precision = averaging.indexOf(selectValue)
     let pressureColorScale = 
     d3.scaleSequential()
         .domain(d3.extent(sensorData[0]['PressureData']))
@@ -219,21 +226,21 @@ function updateColor(index = 0){
                     },
                 update => 
                     update  
-                        .style("fill", d => pressureColorScale(movingAverages(d,index))),
+                        .style("fill", d => pressureColorScale(movingAverages(d,index,precision))),
                 exit => 
                     exit
                         .remove()
         )
     }
 }
-function movingAverages (data, index) {
-    if (index > (minTime + 2) && index < (maxTime - 2)){
+function movingAverages (data, index, precision) {
+    if (index > (minTime + precision) && index < (maxTime - precision)){
         let sum = 0
         let average
-        for (let i = index-2; i <= index+2; i++){
+        for (let i = index-precision; i <= index+precision; i++){
             sum += data.PressureData[i]
         }
-        average = sum/(2*2+1)
+        average = sum/(2*precision+1)
         return average
     }  else{
         return data.PressureData[index]
@@ -251,9 +258,11 @@ let [minTime, maxTime] = [0, 11999]
 let transitionTime = 10
 let updatingColor = false
 let timer
+let time
 
 d3.select('#time-slider').on('input', function() {
     update_time(+this.value)
+    time = +this.value
 })
 
 d3.select('button#play-pause')
