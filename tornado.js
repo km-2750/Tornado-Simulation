@@ -9,7 +9,7 @@ const bottomTopWidth = 137 * scale
 const bottomTopHeight = 43 * scale
 const centerWidth = 137 * scale
 const centerHeight = 91 * scale
-const dispWidth = (2 * margin) + ((2 * leftRightWidth) + centerWidth) + 50 + margin
+const dispWidth = (2 * margin) + ((2 * leftRightWidth) + centerWidth) + 100 + margin
 const dispHeight = (2 * margin) + ((2 * bottomTopHeight) + (centerHeight))
 
 let centerTopBottomX = margin + leftRightWidth
