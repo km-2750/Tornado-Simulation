@@ -95,16 +95,22 @@ d3.select('svg#pressure-display')
     .append('g')
     .attr('id', 'right-circles')
     .attr('transform', rightTransformation)
-var allGroup = ["i-2", "i-1", "i", "i+1", "i+2"]
+
+const averaging = ["None", "+/- 1", "+/- 2", "+/- 3", "+/- 4","+/- 5"]
 
 // add the options to the button
 d3.select("#selectButton")
+    .on('change', () =>  updateColor(time))
     .selectAll('myOptions')
-    .data(allGroup)
+    .data(averaging)
     .enter()
     .append('option')
     .text(function (d) { return d; }) // text showed in the menu
     .attr("value", function (d) { return d; })
+d3.select("#selectButton").property('value', '+/- 2')
+    
+
+
 trialData = []
 circleData = []
 d3.csv('pressureTapInfo.csv').then(d=> {
@@ -121,7 +127,7 @@ function drawData(data){
     let cleanedData = analyzeData(data)
     let sensorData = getSensorData(data)
     let timeData = getTimeData(data)
-    updateColor()
+    updateColor(time)
 }
 
 function analyzeData(data){
@@ -193,12 +199,15 @@ function getSensorData(data){
 
 
 let filteredData = []
+
+
 function updateColor(index = 0){
+    let selectValue = d3.select("#selectButton").property('value')
+    let precision = averaging.indexOf(selectValue)
     let pressureColorScale = 
     d3.scaleSequential()
         .domain(d3.extent(sensorData[0]['PressureData']))
         .interpolator(d3.interpolateRainbow)
-    
     for (let group of ['center', 'top', 'bottom', 'left','right']){
 
         filteredData = sensorData.filter(circle => circle.group === group)
@@ -217,14 +226,28 @@ function updateColor(index = 0){
                     },
                 update => 
                     update  
-                        .style("fill", d => pressureColorScale(d.PressureData[index])),
+                        .style("fill", d => pressureColorScale(movingAverages(d,index,precision))),
                 exit => 
                     exit
                         .remove()
         )
     }
 }
+function movingAverages (data, index, precision) {
+    if (index > (minTime + precision) && index < (maxTime - precision)){
+        let sum = 0
+        let average
+        for (let i = index-precision; i <= index+precision; i++){
+            sum += data.PressureData[i]
+        }
+        average = sum/(2*precision+1)
+        return average
+    }  else{
+        return data.PressureData[index]
+    }
 
+    
+}
 /*calls sliderBottom function from some other d3 library (see html header)
 sets min max based on data
 formats ticks - I don't know what's going on I changed values and didn't get it
@@ -235,9 +258,11 @@ let [minTime, maxTime] = [0, 11999]
 let transitionTime = 10
 let updatingColor = false
 let timer
+let time
 
 d3.select('#time-slider').on('input', function() {
     update_time(+this.value)
+    time = +this.value
 })
 
 d3.select('button#play-pause')
