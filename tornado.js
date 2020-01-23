@@ -122,7 +122,6 @@ function drawData(data){
     let sensorData = getSensorData(data)
     let timeData = getTimeData(data)
     updateColor()
-    drawInteraction(cleanedData)
 }
 
 function analyzeData(data){
@@ -192,13 +191,7 @@ function getSensorData(data){
     return sensorData
 }
 
-function drawInteraction(data){
-    let ColorDomain = data.map(d => d.Sensor1)
-    let pressureColorScale = 
-    d3.scaleSequential()
-        .domain(d3.extent(ColorDomain))
-        .interpolator(d3.interpolateRainbow)
-}
+
 let filteredData = []
 function updateColor(index = 0){
     let pressureColorScale = 
@@ -209,8 +202,6 @@ function updateColor(index = 0){
     for (let group of ['center', 'top', 'bottom', 'left','right']){
 
         filteredData = sensorData.filter(circle => circle.group === group)
-        console.log(filteredData)
-        console.log('g#' +group+ '-circles')
         d3.select('svg#pressure-display')
             .select('g#' +group+ '-circles')  //' +sensorData[i].group+ '
             .selectAll('circle')
