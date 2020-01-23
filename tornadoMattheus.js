@@ -1,31 +1,41 @@
-//Append a defs (for definition) element to your SVG
-var defs = svg.append("defs");
-
-//Append a linearGradient element to the defs and give it a unique id
-var linearGradient = defs.append("linearGradient")
-    .attr("id", "linear-gradient");
-
-//Horizontal gradient
-linearGradient
+d3.select('svg#pressure-display')
+    .append('g')
+    .attr('id', 'legend')
+    .append("defs")
+    .append("linearGradient")
+    .attr("id", "linear-gradient")
     .attr("x1", "0%")
     .attr("y1", "0%")
-    .attr("x2", "100%")
-    .attr("y2", "0%");
+    .attr("x2", "0%")
+    .attr("y2", "100%")
 
-//Set the color for the start (0%)
-linearGradient.append("stop")
+d3.select('#linear-gradient')
+    .append("stop")
     .attr("offset", "0%")
-    .attr("stop-color", "#ffa474"); //light blue
+    .attr("stop-color", '#6948b8')
 
-//Set the color for the end (100%)
-linearGradient.append("stop")
+d3.select('#linear-gradient')
+    .append("stop")
     .attr("offset", "100%")
-    .attr("stop-color", "#8b0000"); //dark blue
+    .attr("stop-color", '#ff863b')
 
-//Draw the rectangle and fill with gradient
-svg.append("rect")
-    .attr('x', dispWidth - 50 - margin)
-    .attr('y', margin)
-    .attr("width", 10)
-    .attr("height", 50)
-    .style("fill", "url(#linear-gradient)");
+d3.select('g#legend')
+    .append("rect")
+    .attr('x', 0)
+    .attr('y', 0)
+    .attr("width", 20)
+    .attr("height", 2 * bottomTopHeight + centerHeight)
+    .style("fill", "url(#linear-gradient)")
+
+let legendScale =
+    d3.scaleLinear()
+    .domain([-246.4994, 2.146041])    // data
+    .range([0, 2 * bottomTopHeight + centerHeight])      // SVG positions
+let legendAxis = d3.axisRight(legendScale)
+
+d3.select('g#legend')
+    .attr('transform', `translate(${dispWidth - 60 - margin}, ${margin})`)
+    .append('g')
+    .attr('id', 'axis')
+    .call(legendAxis)
+    .attr('transform', 'translate(30, 0)')
