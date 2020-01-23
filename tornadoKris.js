@@ -165,7 +165,7 @@ function getSensorData(data){
         'Sensor42','Sensor43','Sensor44','Sensor45','Sensor46','Sensor47',
         'Sensor48','Sensor49','Sensor50','Sensor51','Sensor52','Sensor53',
         'Sensor54','Sensor55','Sensor56','Sensor57','Sensor58','Sensor59',
-        'Sensor60','SensoupdateColorr61','Sensor62','Sensor63','Sensor64','Sensor65',
+        'Sensor60','Sensor61','Sensor62','Sensor63','Sensor64','Sensor65',
         'Sensor66','Sensor67','Sensor68','Sensor69','Sensor70','Sensor71',
         'Sensor72','Sensor73','Sensor74','Sensor75','Sensor76','Sensor77',
         'Sensor78','Sensor79','Sensor80','Sensor81','Sensor82','Sensor83',
