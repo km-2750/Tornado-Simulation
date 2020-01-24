@@ -298,7 +298,7 @@ function update_time(time) {
     if (time > maxTime || time < minTime) {
         time = minTime
     }
-    d3.select('#time-display').text(time*.0025)
+    d3.select('#time-display').text(time/400)
     d3.select('#time-slider').property('value', time)
     updateColor(time)
 }
