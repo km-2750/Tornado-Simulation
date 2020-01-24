@@ -97,14 +97,18 @@ d3.select('svg#pressure-display')
     .attr('transform', rightTransformation)
 var allGroup = ["i-2", "i-1", "i", "i+1", "i+2"]
 
+const averaging = ["None", "+/- 1", "+/- 2", "+/- 3", "+/- 4","+/- 5"]
 // add the options to the button
-d3.select("#selectButton")
+d3.select("#averagingDropdown")
+    .on('change', () =>  updateColor(time))
     .selectAll('myOptions')
-    .data(allGroup)
+    .data(averaging)
     .enter()
     .append('option')
     .text(function (d) { return d; }) // text showed in the menu
     .attr("value", function (d) { return d; })
+d3.select("#averagingDropdown").property('value', '+/- 2')
+
 trialData = []
 circleData = []
 d3.csv('pressureTapInfo.csv').then(d=> {
@@ -123,9 +127,9 @@ function drawData(data){
     let timeData = getTimeData(data)
     findMaxMin()
     drawColorScale()
-    drawScale()
     drawGradient()
-    updateColor()
+    drawScale()
+    updateColor(time)
 }
 
 function analyzeData(data){
@@ -211,12 +215,24 @@ function drawColorScale() {
             .domain(d3.extent(maxMin))
             .interpolator(d3.interpolateRainbow)
 }
-
+let groupAdjust
 let filteredData = []
 function updateColor(index = 0){
     console.log(maxMin)
+    let selectValue = d3.select("#averagingDropdown").property('value')
+    let precision = averaging.indexOf(selectValue)
     for (let group of ['center', 'top', 'bottom', 'left','right']){
-
+        if (group === 'center') {
+            groupAdjust = 1
+        } else if (group === 'top') {
+            groupAdjust = 50
+        } else if (group === 'bottom') {
+            groupAdjust = 71
+        } else if (group === 'left') {
+            groupAdjust = 92
+        } else if (group === 'right') {
+            groupAdjust = 107
+        }
         filteredData = sensorData.filter(circle => circle.group === group)
         d3.select('svg#pressure-display')
             .select('g#' +group+ '-circles')  //' +sensorData[i].group+ '
@@ -226,6 +242,8 @@ function updateColor(index = 0){
                 enter => {
                     enter
                         .append('circle')
+                        .attr('class', 'pressureTap')
+                        .attr('id', (d,i) => `pressureTap${i + groupAdjust}`)
                         .attr('cx', (d,i) => (filteredData[i].cx * scale))
                         .attr('cy', (d,i) => (filteredData[i].cy * scale))
                         .attr('r', 5)
@@ -241,6 +259,22 @@ function updateColor(index = 0){
     }
 }
 
+function movingAverages (data, index, precision) {
+    if (index > (minTime + precision) && index < (maxTime - precision)){
+        let sum = 0
+        let average
+        for (let i = index-precision; i <= index+precision; i++){
+            sum += data.PressureData[i]
+        }
+        average = sum/(2*precision+1)
+        return average
+    }  else{
+        return data.PressureData[index]
+    }
+
+    
+}
+
 /*calls sliderBottom function from some other d3 library (see html header)
 sets min max based on data
 formats ticks - I don't know what's going on I changed values and didn't get it
@@ -251,9 +285,11 @@ let [minTime, maxTime] = [0, 11999]
 let transitionTime = 10
 let updatingColor = false
 let timer
+let time
 
 d3.select('#time-slider').on('input', function() {
     update_time(+this.value)
+    time = +this.value
 })
 
 d3.select('button#play-pause')
@@ -269,12 +305,22 @@ d3.select('button#play-pause')
     })
     .text(updatingColor ? 'Pause' : 'Play')
 
+let newTime
+let dispString
 
 function update_time(time) {
     if (time > maxTime || time < minTime) {
         time = minTime
     }
-    d3.select('#time-display').text(time*.0025)
+    newTime = (Math.trunc((time * .0025) * 1000) / 1000).toString()
+    if (newTime.length < 6) {
+        newTime = parseFloat(newTime).toFixed(3)
+        if (newTime.indexOf('.') < 2) {
+            newTime = ('0' * (2 - newTime.indexOf('.'))) + newTime
+        }
+    }
+    dispString = 'Current time is: ' + newTime + ' seconds'
+    d3.select('#time-display').text(dispString)
     d3.select('#time-slider').property('value', time)
     updateColor(time)
 }
@@ -300,12 +346,18 @@ function drawGradient() {
         .attr("y1", "0%")
         .attr("x2", "0%")
         .attr("y2", "100%")
-        for (let i=1; i<=10; i++) {
+        for (let i=0; i<=10; i++) {
             d3.select('#linear-gradient')
                 .append("stop")
                 .attr("offset", `${i * 10}%`)
-                .attr("stop-color", `${pressureColorScale(1)}`)
+                .attr("stop-color", `${pressureColorScale((((((d3.extent(maxMin))[1]) - (d3.extent(maxMin))[0])) / 10) * i)}`)
+                console.log(((((d3.extent(maxMin))[1]) - ((d3.extent(maxMin))[0])) / 10) * i)
+                console.log(d3.extent(maxMin))
         }
+}
+let legendScale = 0
+let legendAxis = 0
+function drawScale() {
     d3.select('g#legend')
         .append("rect")
         .attr('x', 0)
@@ -313,13 +365,9 @@ function drawGradient() {
         .attr("width", 20)
         .attr("height", 2 * bottomTopHeight + centerHeight)
         .style("fill", "url(#linear-gradient)")
-}
-let legendScale = 0
-let legendAxis = 0
-function drawScale() {
     legendScale =
         d3.scaleLinear()
-            .domain(maxMin)    // data
+            .domain(d3.extent(maxMin))    // data
             .range([0, 2 * bottomTopHeight + centerHeight])      // SVG positions
     legendAxis = d3.axisRight(legendScale)
     d3.select('g#legend')
@@ -329,3 +377,17 @@ function drawScale() {
         .call(legendAxis)
         .attr('transform', 'translate(30, 0)')
 }
+const trialList = []
+for (let i=1; i<=20; i++) {
+    trialList.push(`Trial ${i}`)
+}
+// add the options to the button
+d3.select("#dataSelectDropdown")
+    .on('change', console.log('test 1-2-3'))
+    .selectAll('myOptions')
+    .data(trialList)
+    .enter()
+    .append('option')
+    .text(function (d) { return d; }) // text showed in the menu
+    .attr("value", function (d) { return d; })
+d3.select("#dataSelectDropdown").property('value', 'Trial 1')
