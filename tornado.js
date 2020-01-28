@@ -109,14 +109,21 @@ d3.select("#averagingDropdown").property('value', '+/- 2')
 
 trialData = []
 circleData = []
-d3.csv('pressureTapInfo.csv').then(d=> {
-    circleData = d
-    d3.csv('tornadoPressureData1.CSV').then(d => {
-        drawData(d) 
-        trialData = d
+sensorData = []
+let dataFile = 'tornadoPressureData1.CSV'
+function updateDataFile() {
+    let trialValue = d3.select("#dataSelectDropdown").property('value')
+    let trialNumber = trialValue.slice(6)
+    dataFile = 'tornadoPressureData' + trialNumber + '.CSV'
+    console.log(dataFile)
+    d3.csv('pressureTapInfo.csv').then(d=> {
+        circleData = d
+        d3.csv('tornadoPressureData1.CSV').then(d => {
+            drawData(d)  
+            trialData = d
+        })
     })
-})
-
+}
 
 function drawData(data){
     //Javascript drawing function for whole page relating to data
@@ -267,7 +274,7 @@ function updateColor(index = 0){
         }
         filteredData = sensorData.filter(circle => circle.group === group)
         d3.select('svg#pressure-display')
-            .select('g#' +group+ '-circles')  //' +sensorData[i].group+ '
+            .select('g#' +group+ '-circles')  
             .selectAll('circle')
             .data(filteredData)
             .join(
@@ -311,12 +318,7 @@ function movingAverages (data, index, precision) {
     
 }
 
-/*calls sliderBottom function from some other d3 library (see html header)
-sets min max based on data
-formats ticks - I don't know what's going on I changed values and didn't get it
-on method will update display to show where the slider is but it's continuous
-I think we'll need to update it so it is discrete so .0025
-*/
+
 let [minTime, maxTime] = [0, 11999]
 let transitionTime = 10
 let updatingColor = false
@@ -418,6 +420,10 @@ for (let i=1; i<=20; i++) {
 }
 // add the options to the button
 d3.select("#dataSelectDropdown")
+    .on('change', () => {
+        resetPage()
+        updateDataFile()
+    })
     .selectAll('myOptions')
     .data(trialList)
     .enter()
@@ -449,3 +455,13 @@ function offHover(d) {
     d3.selectAll('.tooltip')
         .style('visibility', 'hidden')
 }
+
+function resetPage() {
+    d3.select('#axis')
+        .remove()
+    d3.select('#time-display')
+        .text('Current time is: 00.000 seconds')
+    d3.select('#time-slider').property('value', 0)
+}
+
+updateDataFile()
