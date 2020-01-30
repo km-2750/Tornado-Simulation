@@ -27,13 +27,17 @@
                 id="time-slider"
                 step="1"
             />
-            </div>
+        </div>
         <button id="play-pause" width="90"></button>
         <select id="averagingDropdown"></select>
         <select id="dataSelectDropdown"></select>
         <div id="slider"></div>
         <p id="time-display">Current time is: 00.000 seconds</p>
-        <script src="tornadoMattheus.js"></script>
+        <div id="display">
+            <div class="tooltip"></div>
+            <svg id="pressure-display"></svg>
+        </div>
+        <script src="tornado.js"></script>
         <p id='license'>Developed by Kris and Mattheus</p>
         <p>This website was created to fulfill the requirements of 
             Math W82: Data Visualization with D3 at Calvin University, January 2020.</p>

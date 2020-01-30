@@ -19,9 +19,7 @@ let topY = margin
 let leftX = margin
 let rightX = margin + leftRightWidth + bottomTopWidth
 
-d3.select('div.content')
-    .append('svg')
-    .attr('id', 'pressure-display')
+d3.select('svg#pressure-display')
     .attr('width', dispWidth)
     .attr('height', dispHeight)
     .append('rect')
@@ -218,7 +216,6 @@ function drawColorScale() {
 let groupAdjust
 let filteredData = []
 function updateColor(index = 0){
-    console.log(maxMin)
     let selectValue = d3.select("#averagingDropdown").property('value')
     let precision = averaging.indexOf(selectValue)
     for (let group of ['center', 'top', 'bottom', 'left','right']){
@@ -243,7 +240,7 @@ function updateColor(index = 0){
                     enter
                         .append('circle')
                         .attr('class', 'pressureTap')
-                        .attr('id', (d,i) => `pressureTap${i + groupAdjust}`)
+                        .attr('id', (d,i) => i + groupAdjust)
                         .attr('cx', (d,i) => (filteredData[i].cx * scale))
                         .attr('cy', (d,i) => (filteredData[i].cy * scale))
                         .attr('r', 5)
@@ -256,6 +253,10 @@ function updateColor(index = 0){
                     exit
                         .remove()
         )
+    d3.selectAll('circle')
+        .on("mouseover", onHover)
+        .on("mousemove", onHover)
+        .on("mouseleave", offHover)
     }
 }
 
@@ -285,7 +286,7 @@ let [minTime, maxTime] = [0, 11999]
 let transitionTime = 10
 let updatingColor = false
 let timer
-let time
+let time = 0
 
 d3.select('#time-slider').on('input', function() {
     update_time(+this.value)
@@ -306,7 +307,7 @@ d3.select('button#play-pause')
     .text(updatingColor ? 'Pause' : 'Play')
 
 let newTime
-let dispString
+let currentTimeString = 'Current time is: 00.000 seconds'
 
 function update_time(time) {
     if (time > maxTime || time < minTime) {
@@ -319,14 +320,14 @@ function update_time(time) {
             newTime = ('0' * (2 - newTime.indexOf('.'))) + newTime
         }
     }
-    dispString = 'Current time is: ' + newTime + ' seconds'
-    d3.select('#time-display').text(dispString)
+    currentTimeString = 'Current time is: ' + newTime + ' seconds'
+    d3.select('#time-display').text(currentTimeString)
     d3.select('#time-slider').property('value', time)
     updateColor(time)
 }
 
 function step() {
-    let time = Number(d3.select('input#time-slider').property('value'))
+    time = Number(d3.select('input#time-slider').property('value'))
     if (updatingColor) {
         time = time + 1
         if (time > maxTime || time < minTime) {
@@ -351,8 +352,6 @@ function drawGradient() {
                 .append("stop")
                 .attr("offset", `${i * 10}%`)
                 .attr("stop-color", `${pressureColorScale((((((d3.extent(maxMin))[1]) - (d3.extent(maxMin))[0])) / 10) * i)}`)
-                console.log(((((d3.extent(maxMin))[1]) - ((d3.extent(maxMin))[0])) / 10) * i)
-                console.log(d3.extent(maxMin))
         }
 }
 let legendScale = 0
@@ -383,7 +382,6 @@ for (let i=1; i<=20; i++) {
 }
 // add the options to the button
 d3.select("#dataSelectDropdown")
-    .on('change', console.log('test 1-2-3'))
     .selectAll('myOptions')
     .data(trialList)
     .enter()
@@ -391,3 +389,27 @@ d3.select("#dataSelectDropdown")
     .text(function (d) { return d; }) // text showed in the menu
     .attr("value", function (d) { return d; })
 d3.select("#dataSelectDropdown").property('value', 'Trial 1')
+
+function onHover(d) {
+    d3.select(this)
+        .attr('r', 10)
+    let mouseLoc = d3.mouse(this)
+    let pressureArray = sensorData[this.id - 1]['PressureData']
+    let pressureAtTime = pressureArray[time]
+    let info =
+        'Pressure tap number: ' + this.id +
+        '<br />Pressure: ' + pressureAtTime + ' Pa' +
+        '<br />' + currentTimeString
+    d3.selectAll('.tooltip')
+        .html(info)
+        .style('visibility', 'visible')
+        // left and top only affect .tooltip b/c position = absolute -- see css
+        .style('left', String(parseInt(mouseLoc[0] + 225)) + 'px')
+        .style('top', String(parseInt(mouseLoc[1]) + 325) + 'px') 
+}
+function offHover(d) {
+    d3.select(this)
+        .attr('r', 5)
+    d3.selectAll('.tooltip')
+        .style('visibility', 'hidden')
+}

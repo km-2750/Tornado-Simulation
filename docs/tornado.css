@@ -41,3 +41,13 @@ opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
 -webkit-transition: .2s; /* 0.2 seconds transition on hover */
 transition: opacity .2s;
 }
+
+.tooltip {
+    position: absolute;
+    border: solid;
+    border-width: 2px;
+    border-radius: 5px;
+    padding: '5px';
+    background-color: white;
+    visibility: hidden;
+}
